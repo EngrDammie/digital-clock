@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hi-Tech Digital Clock</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- This container centers everything perfectly -->
+  <div class="clock-container">
+    
+    <!-- Top row: Alarm indicator -->
+    <div id="alarm" class="alarm-indicator"></div>
+
+    <!-- Middle row: The massive time display -->
+    <div class="clock-display-grid">
+      
+      <!-- THE GHOST LAYER (Physical unlit segments) -->
+      <div class="time-wrapper ghost-layer">
+        <span id="ghost-time" class="time-text">88:88</span>
+        <div class="side-info">
+          <span id="ghost-am_pm">88</span>
+          <span id="ghost-sec">88</span>
+        </div>
+      </div>
+
+      <!-- THE REAL LAYER (Glowing lit segments) -->
+      <div class="time-wrapper real-layer">
+        <span id="time" class="time-text">00:00</span>
+        <div class="side-info">
+          <span id="am_pm">AM</span>
+          <span id="sec">00</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom row: The Date -->
+    <div class="date-wrapper">
+      <span id="day_of_week">Monday</span>, <span id="date">January 1 2026</span>
+    </div>
+
+  </div>
+
+  <!-- The Gear Icon Button -->
+  <button id="settings-btn" class="settings-btn">
+    <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"></circle>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+    </svg>
+  </button>
+
+  <!-- The Settings Modal (Hidden by default) -->
+  <div id="settings-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>SYSTEM SETTINGS</h2>
+        <button id="close-btn" class="close-btn">&times;</button>
+      </div>
+      
+      <div class="modal-body">
+        <!-- Color Picker -->
+        <div class="setting-group">
+          <label for="theme-color">Theme Color</label>
+          <input type="color" id="theme-color">
+        </div>
+
+        <!-- Time Format Dropdown -->
+        <div class="setting-group">
+          <label for="time-format">Time Format</label>
+          <select id="time-format">
+            <option value="1">12-Hour (AM/PM)</option>
+            <option value="0">24-Hour (Military)</option>
+          </select>
+        </div>
+
+        <!-- Alarm ON/OFF Switch -->
+        <div class="setting-group">
+          <label for="alarm-toggle">Enable Alarm</label>
+          <input type="checkbox" id="alarm-toggle" class="hi-tech-checkbox">
+        </div>
+
+        <!-- Alarm Time Picker -->
+        <div class="setting-group">
+          <label for="alarm-time">Alarm Time</label>
+          <input type="time" id="alarm-time">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="common.js"></script>  
+  <script src="clock.js"></script>      
+
+</body>
+</html>
+

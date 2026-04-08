@@ -1,0 +1,264 @@
+/* 1. MASTER DIALS (CSS Variables) */
+:root {
+  --bg-color: #0a0a0c; /* Deep, dark futuristic gray/black */
+  --font-color: #00ffff; /* Hi-tech Cyan/Neon Blue */
+  /* This creates a glowing effect by layering shadows */
+  --glow-effect: 0 0 10px rgba(0, 255, 255, 0.4), 0 0 20px rgba(0, 255, 255, 0.2); 
+}
+
+/* 2. CUSTOM FONT */
+@font-face {
+  font-family: 'digital-7 mono';
+  src: url('digital-7-mono.woff');
+}
+
+/* 3. THE FOUNDATION (The Body) */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-color);
+  /* A subtle circular gradient to give the background depth */
+  background-image: radial-gradient(circle at center, #1a1a24 0%, var(--bg-color) 80%);
+  color: var(--font-color);
+  font-family: 'digital-7 mono', 'Courier New', monospace; /* Failsafe if your font doesn't load */
+  
+  /* Modern Flexbox Layout to perfectly center the clock vertically and horizontally */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Takes up 100% of the screen height */
+  overflow: hidden; /* Prevents scrollbars */
+}
+
+/* 4. CLOCK LAYOUT (7-Segment Aligned Edition) */
+.clock-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-shadow: var(--glow-effect);
+  width: 100%;
+  
+  /* THE MATHEMATICAL CEILING */
+  /* 34vw and 55vh ensures that when multiplied by our 1.6x total height, it NEVER exceeds 95% of your screen height */
+  --base-size: min(34vw, 55vh); 
+
+  /* THE "DEAD-CENTER" TUNING DIAL */
+  /* This pulls the entire clock up to counteract the huge invisible padding at the top of your custom font. */
+  /* If it's still too low, change to -8vh or -10vh. If it's too high, change to -4vh. */
+  margin-top: -20vh; 
+}
+
+/* THE GRID OVERLAY SYSTEM */
+.clock-display-grid {
+  display: grid; /* The ultimate trick for stacking elements */
+  justify-content: center;
+}
+
+.ghost-layer {
+  grid-area: 1 / 1; /* Places it in Cell 1 */
+  opacity: 0.08; /* Extremely dim, like unlit LCD glass */
+  color: var(--font-color); 
+  text-shadow: none; /* Unlit segments don't glow! */
+  z-index: 1; /* Keeps it in the background */
+}
+
+.real-layer {
+  grid-area: 1 / 1; /* Places it EXACTLY on top of the ghost layer in Cell 1 */
+  z-index: 2; /* Brings the glowing numbers to the front */
+}
+
+.time-wrapper {
+  display: flex;
+  /* 'stretch' forces the side block to be the EXACT same height as the big numbers' invisible box */
+  align-items: stretch; 
+  justify-content: center;
+  font-size: var(--base-size);
+  white-space: nowrap;
+  line-height: 1;
+}
+
+/* We changed this from #time to .time-text so BOTH layers share the exact same spacing! */
+.time-text {
+  font-size: 1em;
+  letter-spacing: 0.02em;
+  margin: 0;
+  /* This forces custom fonts to make all numbers the exact same physical width! */
+  font-variant-numeric: tabular-nums; 
+}
+
+.side-info {
+  display: flex;
+  flex-direction: column;
+  /* This throws PM to the absolute top and Seconds to the absolute bottom */
+  justify-content: space-between; 
+  margin-left: 0.15em;
+  font-size: 0.28em; 
+  line-height: 1; 
+  height: auto; /* Removes our old height guess */
+  
+  /* === THE TUNING DIALS === */
+  /* If the PM is too high, increase padding-top (e.g., 0.3em). If too low, decrease it. */
+  padding-top: 0.8em;    
+  
+  /* If Seconds are too low, increase padding-bottom (e.g., 0.3em). If too high, decrease it. */
+  padding-bottom: 0.2em;  
+}
+
+.date-wrapper {
+  font-size: calc(var(--base-size) * 0.25);
+  letter-spacing: 0.05em;
+  margin-top: 0.15em; /* Safely pushes the date below the time block */
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-align: center; 
+  width: 100%;
+}
+
+.alarm-indicator {
+  /* DETACHING FROM THE CONTAINER */
+  position: absolute;
+  top: 5vh; /* Locks it 5% from the top edge of your browser window */
+  left: 50%;
+  transform: translateX(-50%); /* Perfect horizontal dead-centering */
+  z-index: 50; /* Ensures it floats on top of everything else */
+
+  /* SIZING AND PAINT */
+  font-size: calc(var(--base-size) * 0.15); /* Slightly scaled down so it's a sleek HUD element */
+  color: #ff3366;
+  text-shadow: 0 0 10px rgba(255, 51, 102, 0.5);
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* 5. EXTRA STYLES */
+a {
+  color: var(--font-color);
+  text-decoration: none;
+  opacity: 0.5; /* Makes the link less distracting */
+  transition: opacity 0.3s ease;
+}
+
+a:hover {
+  opacity: 1; /* Brightens up when you hover with the mouse */
+}
+
+/* --- PHASE 2: DASHBOARD & SETTINGS --- */
+
+/* The Gear Icon Button */
+.settings-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: var(--font-color);
+  cursor: pointer;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+  z-index: 100;
+}
+
+.settings-btn:hover {
+  opacity: 1;
+  transform: rotate(90deg); /* Spins when hovered! */
+  text-shadow: var(--glow-effect);
+}
+
+/* The Modal Overlay (Darkens the screen behind the panel) */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none; /* Can't click it when hidden */
+  transition: opacity 0.3s ease;
+  z-index: 200;
+}
+
+/* Class added by JavaScript to show the modal */
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* The Settings Box */
+.modal-content {
+  background: #111115;
+  border: 1px solid var(--font-color);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8), var(--glow-effect);
+  width: 90%;
+  max-width: 400px;
+  border-radius: 8px;
+  font-family: Arial, sans-serif; /* Clean font for settings */
+  color: #fff;
+  padding: 20px;
+}
+
+/* Header & Close Button */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #333;
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+  color: var(--font-color);
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.close-btn:hover {
+  color: #ff3366;
+}
+
+/* Form Inputs */
+.setting-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.setting-group label {
+  font-size: 1rem;
+}
+
+.setting-group input[type="color"],
+.setting-group select,
+.setting-group input[type="time"],
+.hi-tech-checkbox {
+  background: #222;
+  color: #fff;
+  border: 1px solid #444;
+  padding: 8px;
+  border-radius: 4px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.setting-group select:focus,
+.setting-group input:focus {
+  outline: none;
+  border-color: var(--font-color);
+}
