@@ -53,6 +53,13 @@
     </svg>
   </button>
 
+  <!-- THE NEW FULLSCREEN BUTTON -->
+  <button id="fullscreen-btn" class="fullscreen-btn">
+    <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+    </svg>
+  </button>
+
   <!-- The Settings Modal (Hidden by default) -->
   <div id="settings-modal" class="modal-overlay">
     <div class="modal-content">
@@ -77,6 +84,29 @@
           </select>
         </div>
 
+        <!-- NEW: Date Format Dropdown -->
+        <div class="setting-group">
+          <label for="date-format">Date Format</label>
+          <select id="date-format">
+            <option value="0">Full Text (e.g. THURSDAY, APRIL 9 2026)</option>
+            <option value="1">US Numeric (MM/DD/YYYY)</option>
+            <option value="2">Global Numeric (DD/MM/YYYY)</option>
+            <option value="3">ISO Numeric (YYYY-MM-DD)</option>
+          </select>
+        </div>
+
+        <!-- Show/Hide Seconds -->
+        <div class="setting-group">
+          <label for="show-seconds">Show Seconds</label>
+          <input type="checkbox" id="show-seconds" class="hi-tech-checkbox">
+        </div>
+
+        <!-- Show/Hide Date -->
+        <div class="setting-group">
+          <label for="show-date">Show Date</label>
+          <input type="checkbox" id="show-date" class="hi-tech-checkbox">
+        </div>
+
         <!-- Alarm ON/OFF Switch -->
         <div class="setting-group">
           <label for="alarm-toggle">Enable Alarm</label>
@@ -92,6 +122,12 @@
     </div>
   </div>
 
+  <!-- THE INTERACTIVE FOOTER -->
+  <div id="interactive-footer" class="interactive-footer">
+    &copy; <span id="current-year">2026</span> 
+    <a href="https://dammieoptimus.github.io/tgrstartnow/?d=eyJyZWYiOiJEYW1taWVPcHRpbXVzMiIsIm5hbWUiOiJEYW1taWUgKE9wdGltdXMpIEF5b2RlbGUiLCJwaG9uZSI6IjA4MDI4OTc1ODE2IiwicGljIjoiaHR0cHM6Ly9pLmltZ3VyLmNvbS9xcVVFNGFyLmpwZyJ9" target="_blank">Dammie Optimus Solutions</a>
+  </div>
+  
   <script src="common.js"></script>  
   <script src="clock.js"></script>      
 

@@ -4,8 +4,8 @@
 */
 
 // --- DATA ---
-const dayOfWeekNames =["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-const monthNames =["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const dayOfWeekNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 let alarmIsRinging = false;
 let blinkColon = true;
@@ -19,20 +19,20 @@ function padZero(num) {
 // --- MAIN CLOCK LOOP ---
 function updateClock() {
   const now = new Date(); // Get the exact current time from the computer
-  
+
   // 1. Format the Time
   let hours = now.getHours();
   const minutes = now.getMinutes();
   const seconds = now.getSeconds();
-  
+
   const isAmPmFormat = Config.get("am_pm") === "1";
   let amPmString = "";
-  
+
   if (isAmPmFormat) {
     amPmString = hours >= 12 ? "PM" : "AM";
-    hours = hours % 12 || 12; 
+    hours = hours % 12 || 12;
   }
-  
+
   // === SENIOR ENGINEER TRICK ===
   // If the hour is single-digit (e.g. "2"), we inject a fully invisible "8" in front of it.
   // This physically forces the width of "2:56" to perfectly match the background "88:88"!
@@ -41,12 +41,12 @@ function updateClock() {
   blinkColon = !blinkColon;
   const colonHtml = `<span style="opacity: ${blinkColon ? 1 : 0}">:</span>`;
   const htmlTimeString = `${displayHours}${colonHtml}${padZero(minutes)}`;
-  
+
   // === 2. FORMAT THE GHOST TIME (Perfect HTML Clone) ===
   const ghostHours = hours < 10 ? `<span style="opacity: 1">8</span>8` : '88';
   const ghostColonHtml = `<span>:</span>`;
   const ghostHtmlTimeString = `${ghostHours}${ghostColonHtml}88`;
-  
+
   // === 3. PUSH TO REAL LAYER ===
   document.getElementById('time').innerHTML = htmlTimeString;
   document.getElementById('sec').textContent = padZero(seconds);
@@ -56,28 +56,68 @@ function updateClock() {
   document.getElementById('ghost-time').innerHTML = ghostHtmlTimeString;
   document.getElementById('ghost-sec').textContent = '88';
   // The "8M" Trick: '8' covers the unlit 'A' and 'P'. 'M' ensures the exact same physical width!
-  
+
   // Only show the '8M' ghost if we are actually in AM/PM mode!
   if (isAmPmFormat) {
-    document.getElementById('ghost-am_pm').textContent = '8M'; 
+    document.getElementById('ghost-am_pm').textContent = '8M';
   } else {
-    document.getElementById('ghost-am_pm').textContent = ''; 
-  } 
-  
+    document.getElementById('ghost-am_pm').textContent = '';
+  }
+
+  // === 5. HANDLE VISIBILITY TOGGLES ===
+  const showSec = Config.get("show_seconds") === "1";
+  const showDate = Config.get("show_date") === "1";
+
+  const realSec = document.getElementById('sec');
+  const ghostSec = document.getElementById('ghost-sec');
+  const dateWrapper = document.querySelector('.date-wrapper');
+
+  // Toggle Seconds
+  if (showSec) {
+    realSec.classList.remove('hidden');
+    ghostSec.classList.remove('hidden');
+  } else {
+    realSec.classList.add('hidden');
+    ghostSec.classList.add('hidden');
+  }
+
+  // Toggle Date
+  if (showDate) {
+    dateWrapper.classList.remove('hidden');
+  } else {
+    dateWrapper.classList.add('hidden');
+  }
+
   // Update the Browser Tab Title
   const plainTimeString = `${hours}:${padZero(minutes)}`;
   document.title = `${plainTimeString} ${amPmString} - Hi-Tech Clock`;
-  
+
   // 2. Format the Date
   const dayName = dayOfWeekNames[now.getDay()];
   const monthName = monthNames[now.getMonth()];
   const dateNum = now.getDate();
   const yearNum = now.getFullYear();
-  
-  // Push the date to the screen
-  document.getElementById('day_of_week').textContent = dayName;
-  document.getElementById('date').textContent = `${monthName} ${dateNum} ${yearNum}`;
-  
+
+  // Create numeric versions (e.g., turns "9" into "09")
+  const numericMonth = padZero(now.getMonth() + 1);
+  const numericDate = padZero(dateNum);
+
+  // Read the chosen format from memory
+  const formatPref = Config.get("date_format");
+  let finalDateString = "";
+
+  switch (formatPref) {
+    case "1": finalDateString = `${numericMonth}/${numericDate}/${yearNum}`; break; // US
+    case "2": finalDateString = `${numericDate}/${numericMonth}/${yearNum}`; break; // Global
+    case "3": finalDateString = `${yearNum}-${numericMonth}-${numericDate}`; break; // ISO
+    case "0":
+    default: finalDateString = `${dayName}, ${monthName} ${dateNum} ${yearNum}`; break; // Full Text
+  }
+
+  // Push the final configured string to the screen
+  // (This replaces the old separate #day_of_week and #date spans with one clean string)
+  document.querySelector('.date-wrapper').textContent = finalDateString;
+
   // Update the Browser Tab Title using the plain text version
   document.title = `${plainTimeString} ${amPmString} - Hi-Tech Clock`;
 
@@ -92,7 +132,7 @@ function updateClock() {
 function checkAlarm(now, currentHour, currentMin, currentSec) {
   const alarmOn = Config.get("alarm_on") === "1";
   const alarmEl = document.getElementById('alarm');
-  
+
   if (!alarmOn) {
     alarmEl.textContent = "";
     return;
@@ -112,14 +152,14 @@ function checkAlarm(now, currentHour, currentMin, currentSec) {
   if (alarmIsRinging && currentSec % 2 === 0) {
     alarmEl.textContent = ">>> ALARM! <<<"; // Flashes every other second
   } else if (alarmIsRinging) {
-    alarmEl.textContent = ""; 
+    alarmEl.textContent = "";
   } else {
     // Show what time the alarm is set for
     let displayHour = aHour;
     let displayAmPm = "";
     if (Config.get("am_pm") === "1") {
-        displayAmPm = aHour >= 12 ? "PM" : "AM";
-        displayHour = aHour % 12 || 12;
+      displayAmPm = aHour >= 12 ? "PM" : "AM";
+      displayHour = aHour % 12 || 12;
     }
     alarmEl.textContent = `Alarm Set: ${displayHour}:${padZero(aMin)} ${displayAmPm}`;
   }
@@ -143,29 +183,29 @@ function initAudioEngine() {
 
 function playAlarmSound() {
   // Safety check: if the engine never started, don't try to play
-  if (!audioCtx) return; 
+  if (!audioCtx) return;
 
   function beep() {
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
-    
+
     osc.type = 'square'; // Classic digital watch sound
-    osc.frequency.setValueAtTime(880, audioCtx.currentTime); 
-    
+    osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+
     // Loud at first, fading out super fast
     gain.gain.setValueAtTime(1, audioCtx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-    
+
     osc.connect(gain);
     gain.connect(audioCtx.destination);
-    
+
     osc.start(audioCtx.currentTime);
     osc.stop(audioCtx.currentTime + 0.1);
   }
 
   function playDoubleBeep() {
-    beep(); 
-    setTimeout(beep, 150); 
+    beep();
+    setTimeout(beep, 150);
   }
 
   playDoubleBeep();
@@ -176,7 +216,7 @@ function dismissAlarm() {
   Config.set("alarm_on", "0");
   alarmIsRinging = false;
   document.getElementById('alarm').textContent = "";
-  
+
   if (alarmBeepInterval) {
     clearInterval(alarmBeepInterval);
   }
@@ -197,7 +237,7 @@ function dismissAlarm() {
   Config.set("alarm_on", "0");
   alarmIsRinging = false;
   document.getElementById('alarm').textContent = "";
-  
+
   // Turn off the repeating synthesizer beep!
   if (alarmBeepInterval) {
     clearInterval(alarmBeepInterval);
@@ -224,7 +264,7 @@ function init() {
   });
 
   updateClock();
-  
+
   const msUntilNextSecond = 1000 - new Date().getMilliseconds();
   setTimeout(() => {
     updateClock();
@@ -248,6 +288,9 @@ function setupSettingsPanel() {
   const formatSelect = document.getElementById('time-format');
   const alarmToggle = document.getElementById('alarm-toggle');
   const alarmTimeInput = document.getElementById('alarm-time');
+  const dateSelect = document.getElementById('date-format');
+  const secToggle = document.getElementById('show-seconds');
+  const dateToggle = document.getElementById('show-date');
 
   // 1. Open / Close Logic
   btn.addEventListener('click', () => {
@@ -264,7 +307,10 @@ function setupSettingsPanel() {
     colorInput.value = Config.get("font_color");
     formatSelect.value = Config.get("am_pm");
     alarmToggle.checked = Config.get("alarm_on") === "1";
-    
+    dateSelect.value = Config.get("date_format");
+    secToggle.checked = Config.get("show_seconds") === "1";
+    dateToggle.checked = Config.get("show_date") === "1";
+
     // Convert saved hour & min to HH:mm format for the input box
     const h = padZero(parseInt(Config.get("alarm_hour"), 10));
     const m = padZero(parseInt(Config.get("alarm_min"), 10));
@@ -299,7 +345,70 @@ function setupSettingsPanel() {
     Config.set("alarm_min", parseInt(minutes, 10).toString());
     updateClock();
   });
+
+  // Date Format Change
+  dateSelect.addEventListener('change', (e) => {
+    Config.set("date_format", e.target.value);
+    updateClock(); // Instantly update screen
+  });
+
+  // Fullscreen Button Logic
+  const fsBtn = document.getElementById('fullscreen-btn');
+  fsBtn.addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.log("Fullscreen blocked by browser:", err);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  });
+
+  // Visibility Toggles
+  secToggle.addEventListener('change', (e) => {
+    Config.set("show_seconds", e.target.checked ? "1" : "0");
+    updateClock(); 
+  });
+
+  dateToggle.addEventListener('change', (e) => {
+    Config.set("show_date", e.target.checked ? "1" : "0");
+    updateClock(); 
+  });
 }
+
+// --- INTERACTIVE FOOTER LOGIC ---
+function setupFooter() {
+  const footer = document.getElementById('interactive-footer');
+  let idleTimer;
+
+  // Auto-update the copyright year
+  document.getElementById('current-year').textContent = new Date().getFullYear();
+
+  function wakeUpInterface() {
+    // Show the footer
+    footer.classList.add('active');
+    
+    // Clear the old countdown timer
+    clearTimeout(idleTimer);
+    
+    // Start a new 3-second countdown to hide it again
+    idleTimer = setTimeout(() => {
+      footer.classList.remove('active');
+    }, 3000);
+  }
+
+  // Listen for ANY user interaction to wake up the footer
+  window.addEventListener('mousemove', wakeUpInterface); // Mouse movement
+  window.addEventListener('mousedown', wakeUpInterface); // Mouse clicks
+  window.addEventListener('keydown', wakeUpInterface);   // Keyboard typing
+  window.addEventListener('touchstart', wakeUpInterface);// Mobile screen tapping
+  
+  // Trigger it once when the page first loads
+  wakeUpInterface();
+}
+
+// Start the footer logic
+setupFooter();
 
 // Start the Dashboard wiring!
 setupSettingsPanel();

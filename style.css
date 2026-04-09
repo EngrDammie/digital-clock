@@ -145,11 +145,10 @@ a:hover {
 
 /* --- PHASE 2: DASHBOARD & SETTINGS --- */
 
-/* The Gear Icon Button */
-.settings-btn {
+/* Top Right Control Buttons */
+.settings-btn, .fullscreen-btn {
   position: absolute;
   top: 20px;
-  right: 20px;
   background: none;
   border: none;
   color: var(--font-color);
@@ -159,11 +158,16 @@ a:hover {
   z-index: 100;
 }
 
-.settings-btn:hover {
+.settings-btn { right: 20px; }
+.fullscreen-btn { right: 60px; } /* Sits right next to the gear icon */
+
+.settings-btn:hover, .fullscreen-btn:hover {
   opacity: 1;
-  transform: rotate(90deg); /* Spins when hovered! */
   text-shadow: var(--glow-effect);
 }
+
+.settings-btn:hover { transform: rotate(90deg); }
+.fullscreen-btn:hover { transform: scale(1.1); } /* Pops out slightly when hovered */
 
 /* The Modal Overlay (Darkens the screen behind the panel) */
 .modal-overlay {
@@ -261,4 +265,45 @@ a:hover {
 .setting-group input:focus {
   outline: none;
   border-color: var(--font-color);
+}
+
+/* UTILITY CLASS: Hides elements dynamically */
+.hidden {
+  display: none !important;
+}
+
+
+/* --- THE INTERACTIVE FOOTER --- */
+.interactive-footer {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%); /* Dead-centers the footer */
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.4); /* Faint white text */
+  opacity: 0; /* Completely invisible by default */
+  transition: opacity 0.8s ease; /* Smooth, cinematic fade */
+  z-index: 100;
+  pointer-events: none; 
+}
+
+/* JavaScript will add this class when the mouse moves */
+.interactive-footer.active {
+  opacity: 1;
+  pointer-events: auto; /* Makes the link clickable */
+}
+
+/* Styling your business link */
+.interactive-footer a {
+  color: var(--font-color);
+  text-decoration: none;
+  font-weight: bold;
+  text-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.interactive-footer a:hover {
+  color: #fff;
+  text-shadow: var(--glow-effect); /* Glows brightly when hovered! */
 }
