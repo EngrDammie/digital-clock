@@ -246,23 +246,30 @@ function dismissAlarm() {
 
 // --- THEME SYSTEM ---
 function applyTheme() {
-  const fontColor = Config.get("font_color"); // e.g., "#00ffff"
+  const fontColor = Config.get("font_color");
   const intensity = parseInt(Config.get("glow_intensity"), 10);
+  const fontFamily = Config.get("clock_font");
 
-  // 1. Set the solid text color
+  // 1. Set the Colors & Fonts
   document.documentElement.style.setProperty('--font-color', fontColor);
+  document.documentElement.style.setProperty('--clock-font', fontFamily);
 
-  // 2. Calculate the dynamic glow!
+  // 2. Calculate the dynamic glow
   if (intensity === 0) {
     document.documentElement.style.setProperty('--glow-effect', 'none');
   } else {
-    // We add Hex Alpha channels to make the shadow semi-transparent (80 = 50% opacity, 4D = 30% opacity)
     const glowColor1 = fontColor + "80"; 
     const glowColor2 = fontColor + "4D"; 
-    
-    // Create the layered neon effect using math
     const glowString = `0 0 ${intensity}px ${glowColor1}, 0 0 ${intensity * 2}px ${glowColor2}`;
     document.documentElement.style.setProperty('--glow-effect', glowString);
+  }
+
+  // 3. THE FINAL BOSS LOGIC: Smart Ghost Layer Toggle
+  const ghostLayer = document.querySelector('.ghost-layer');
+  if (fontFamily === "digital-7 mono") {
+    ghostLayer.style.display = "flex"; // Turn ON for physical hardware font
+  } else {
+    ghostLayer.style.display = "none"; // Turn OFF for standard web fonts
   }
 }
 
@@ -307,6 +314,7 @@ function setupSettingsPanel() {
   const secToggle = document.getElementById('show-seconds');
   const dateToggle = document.getElementById('show-date');
   const glowSlider = document.getElementById('glow-intensity');
+  const fontSelect = document.getElementById('clock-font');
 
   // 1. Open / Close Logic
   btn.addEventListener('click', () => {
@@ -327,6 +335,7 @@ function setupSettingsPanel() {
     secToggle.checked = Config.get("show_seconds") === "1";
     dateToggle.checked = Config.get("show_date") === "1";
     glowSlider.value = Config.get("glow_intensity");
+    fontSelect.value = Config.get("clock_font");
 
     // Convert saved hour & min to HH:mm format for the input box
     const h = padZero(parseInt(Config.get("alarm_hour"), 10));
@@ -396,6 +405,12 @@ function setupSettingsPanel() {
   glowSlider.addEventListener('input', (e) => {
     Config.set("glow_intensity", e.target.value);
     applyTheme(); // Instantly calculate and paint the new shadow!
+  });
+
+  // Font Switcher
+  fontSelect.addEventListener('change', (e) => {
+    Config.set("clock_font", e.target.value);
+    applyTheme(); // Instantly changes font and safely hides/shows the ghost layer!
   });
 }
 

@@ -30,6 +30,7 @@ const Config = {
       case "show_seconds": return "1"; // 1 = Show, 0 = Hide
       case "show_date": return "1";    // 1 = Show, 0 = Hide
       case "glow_intensity": return "10"; // 0 = Off, 10 = Normal, 20 = Max
+      case "clock_font": return "digital-7 mono"; // Default font
       default: return "";
     }
   }
