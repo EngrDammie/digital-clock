@@ -56,7 +56,13 @@ function updateClock() {
   document.getElementById('ghost-time').innerHTML = ghostHtmlTimeString;
   document.getElementById('ghost-sec').textContent = '88';
   // The "8M" Trick: '8' covers the unlit 'A' and 'P'. 'M' ensures the exact same physical width!
-  document.getElementById('ghost-am_pm').textContent = '8M'; 
+  
+  // Only show the '8M' ghost if we are actually in AM/PM mode!
+  if (isAmPmFormat) {
+    document.getElementById('ghost-am_pm').textContent = '8M'; 
+  } else {
+    document.getElementById('ghost-am_pm').textContent = ''; 
+  } 
   
   // Update the Browser Tab Title
   const plainTimeString = `${hours}:${padZero(minutes)}`;
