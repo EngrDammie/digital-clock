@@ -246,9 +246,24 @@ function dismissAlarm() {
 
 // --- THEME SYSTEM ---
 function applyTheme() {
-  const fontColor = Config.get("font_color");
-  // This talks directly to the CSS "Master Dial" we set up in Phase 1!
+  const fontColor = Config.get("font_color"); // e.g., "#00ffff"
+  const intensity = parseInt(Config.get("glow_intensity"), 10);
+
+  // 1. Set the solid text color
   document.documentElement.style.setProperty('--font-color', fontColor);
+
+  // 2. Calculate the dynamic glow!
+  if (intensity === 0) {
+    document.documentElement.style.setProperty('--glow-effect', 'none');
+  } else {
+    // We add Hex Alpha channels to make the shadow semi-transparent (80 = 50% opacity, 4D = 30% opacity)
+    const glowColor1 = fontColor + "80"; 
+    const glowColor2 = fontColor + "4D"; 
+    
+    // Create the layered neon effect using math
+    const glowString = `0 0 ${intensity}px ${glowColor1}, 0 0 ${intensity * 2}px ${glowColor2}`;
+    document.documentElement.style.setProperty('--glow-effect', glowString);
+  }
 }
 
 // --- BOOT UP SEQUENCE ---
@@ -291,6 +306,7 @@ function setupSettingsPanel() {
   const dateSelect = document.getElementById('date-format');
   const secToggle = document.getElementById('show-seconds');
   const dateToggle = document.getElementById('show-date');
+  const glowSlider = document.getElementById('glow-intensity');
 
   // 1. Open / Close Logic
   btn.addEventListener('click', () => {
@@ -310,6 +326,7 @@ function setupSettingsPanel() {
     dateSelect.value = Config.get("date_format");
     secToggle.checked = Config.get("show_seconds") === "1";
     dateToggle.checked = Config.get("show_date") === "1";
+    glowSlider.value = Config.get("glow_intensity");
 
     // Convert saved hour & min to HH:mm format for the input box
     const h = padZero(parseInt(Config.get("alarm_hour"), 10));
@@ -373,6 +390,12 @@ function setupSettingsPanel() {
   dateToggle.addEventListener('change', (e) => {
     Config.set("show_date", e.target.checked ? "1" : "0");
     updateClock(); 
+  });
+
+  // Glow Slider
+  glowSlider.addEventListener('input', (e) => {
+    Config.set("glow_intensity", e.target.value);
+    applyTheme(); // Instantly calculate and paint the new shadow!
   });
 }
 
