@@ -165,49 +165,50 @@ function checkAlarm(now, currentHour, currentMin, currentSec) {
   }
 }
 
-// --- AUDIO SYNTHESIZER (No external files needed!) ---
+// --- UNBREAKABLE AUDIO SYNTHESIZER ---
 let alarmBeepInterval;
-let audioCtx; // We declare the engine globally so we can turn it on early
+let audioCtx; 
 
-// This function "arms" the engine safely during a user click
-function initAudioEngine() {
+// A robust function that forces the engine to wake up
+function getAudioContext() {
   if (!audioCtx) {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     audioCtx = new AudioContext();
   }
-  // If the browser paused the engine, wake it up!
+  // If the browser aggressively put the tab to sleep, SHAKE IT AWAKE!
   if (audioCtx.state === 'suspended') {
     audioCtx.resume();
   }
+  return audioCtx;
+}
+
+function beep() {
+  const ctx = getAudioContext();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  
+  osc.type = 'square'; 
+  // 880Hz is a piercing, classic digital watch frequency
+  osc.frequency.setValueAtTime(880, ctx.currentTime); 
+  
+  // Start loud (1), and fade to silence (0.01) over 0.1 seconds
+  gain.gain.setValueAtTime(1, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+  
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  
+  osc.start(ctx.currentTime);
+  osc.stop(ctx.currentTime + 0.1);
 }
 
 function playAlarmSound() {
-  // Safety check: if the engine never started, don't try to play
-  if (!audioCtx) return;
-
-  function beep() {
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-
-    osc.type = 'square'; // Classic digital watch sound
-    osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-
-    // Loud at first, fading out super fast
-    gain.gain.setValueAtTime(1, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-
-    osc.start(audioCtx.currentTime);
-    osc.stop(audioCtx.currentTime + 0.1);
-  }
-
   function playDoubleBeep() {
-    beep();
-    setTimeout(beep, 150);
+    beep(); 
+    setTimeout(beep, 150); 
   }
 
+  // Play immediately, then repeat every 1 second
   playDoubleBeep();
   alarmBeepInterval = setInterval(playDoubleBeep, 1000);
 }
@@ -216,7 +217,7 @@ function dismissAlarm() {
   Config.set("alarm_on", "0");
   alarmIsRinging = false;
   document.getElementById('alarm').textContent = "";
-
+  
   if (alarmBeepInterval) {
     clearInterval(alarmBeepInterval);
   }
@@ -233,16 +234,6 @@ function showNotification() {
   }
 }
 
-function dismissAlarm() {
-  Config.set("alarm_on", "0");
-  alarmIsRinging = false;
-  document.getElementById('alarm').textContent = "";
-
-  // Turn off the repeating synthesizer beep!
-  if (alarmBeepInterval) {
-    clearInterval(alarmBeepInterval);
-  }
-}
 
 // --- THEME SYSTEM ---
 function applyTheme() {
@@ -281,12 +272,12 @@ function init() {
 
   // Anytime the user clicks anywhere, arm the audio engine!
   document.addEventListener('click', () => {
-    initAudioEngine(); // Starts the engine safely
+    getAudioContext(); // <-- FIXED: We now call our new, unbreakable engine function!
     if (alarmIsRinging) dismissAlarm(); // Stops the alarm if it's ringing
   });
 
   updateClock();
-
+  
   const msUntilNextSecond = 1000 - new Date().getMilliseconds();
   setTimeout(() => {
     updateClock();
@@ -411,6 +402,15 @@ function setupSettingsPanel() {
   fontSelect.addEventListener('change', (e) => {
     Config.set("clock_font", e.target.value);
     applyTheme(); // Instantly changes font and safely hides/shows the ghost layer!
+  });
+
+  // Test Alarm Button
+  const testBtn = document.getElementById('test-alarm-btn');
+  testBtn.addEventListener('click', () => {
+    // Force the engine to initialize and play a single double-beep!
+    getAudioContext();
+    beep();
+    setTimeout(beep, 150);
   });
 }
 

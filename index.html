@@ -130,10 +130,13 @@
           <input type="checkbox" id="alarm-toggle" class="hi-tech-checkbox">
         </div>
 
-        <!-- Alarm Time Picker -->
+        <!-- Alarm Time Picker & Test Button -->
         <div class="setting-group">
           <label for="alarm-time">Alarm Time</label>
-          <input type="time" id="alarm-time">
+          <div style="display: flex; gap: 10px;">
+            <input type="time" id="alarm-time">
+            <button id="test-alarm-btn" style="background: var(--font-color); color: #000; border: none; padding: 0 10px; border-radius: 4px; cursor: pointer; font-weight: bold;">TEST</button>
+          </div>
         </div>
       </div>
     </div>
