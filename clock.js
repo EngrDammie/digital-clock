@@ -126,6 +126,7 @@ function updateClock() {
 
   // 4. Handle Alarms
   checkAlarm(now, hours, minutes, seconds);
+  checkHourlyChime(now, minutes, seconds);
 }
 
 // --- ALARM SYSTEM ---
@@ -169,16 +170,12 @@ function checkAlarm(now, currentHour, currentMin, currentSec) {
 let alarmBeepInterval;
 let audioCtx; 
 
-// A robust function that forces the engine to wake up
 function getAudioContext() {
   if (!audioCtx) {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     audioCtx = new AudioContext();
   }
-  // If the browser aggressively put the tab to sleep, SHAKE IT AWAKE!
-  if (audioCtx.state === 'suspended') {
-    audioCtx.resume();
-  }
+  if (audioCtx.state === 'suspended') audioCtx.resume();
   return audioCtx;
 }
 
@@ -188,10 +185,8 @@ function beep() {
   const gain = ctx.createGain();
   
   osc.type = 'square'; 
-  // 880Hz is a piercing, classic digital watch frequency
   osc.frequency.setValueAtTime(880, ctx.currentTime); 
   
-  // Start loud (1), and fade to silence (0.01) over 0.1 seconds
   gain.gain.setValueAtTime(1, ctx.currentTime);
   gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
   
@@ -202,13 +197,13 @@ function beep() {
   osc.stop(ctx.currentTime + 0.1);
 }
 
-function playAlarmSound() {
-  function playDoubleBeep() {
-    beep(); 
-    setTimeout(beep, 150); 
-  }
+// SHARED DOUBLE-BEEP: Used by both Alarm and Hourly Chime
+function playDoubleBeep() {
+  beep(); 
+  setTimeout(beep, 150); 
+}
 
-  // Play immediately, then repeat every 1 second
+function playAlarmSound() {
   playDoubleBeep();
   alarmBeepInterval = setInterval(playDoubleBeep, 1000);
 }
@@ -217,9 +212,30 @@ function dismissAlarm() {
   Config.set("alarm_on", "0");
   alarmIsRinging = false;
   document.getElementById('alarm').textContent = "";
+  if (alarmBeepInterval) clearInterval(alarmBeepInterval);
+}
+
+// NEW: Hourly Chime Engine
+function playHourlyChime(currentHour24) {
+  // QUIET HOURS: Do not beep from 1 AM through 6 AM. 
+  if (currentHour24 >= 1 && currentHour24 <= 6) return;
   
-  if (alarmBeepInterval) {
-    clearInterval(alarmBeepInterval);
+  // Convert 24-hour time to 12-hour format (e.g., 20:00 becomes 8)
+  let beepsRemaining = currentHour24 % 12 || 12; 
+  
+  // Play the first beep immediately
+  playDoubleBeep();
+  beepsRemaining--;
+  
+  // If more beeps are needed, loop them 1 second apart!
+  if (beepsRemaining > 0) {
+    const chimeInterval = setInterval(() => {
+      playDoubleBeep();
+      beepsRemaining--;
+      if (beepsRemaining <= 0) {
+        clearInterval(chimeInterval); // Stop when we hit the exact count
+      }
+    }, 1000); 
   }
 }
 
@@ -227,13 +243,25 @@ function showNotification() {
   // Modern standard Notification API
   if ("Notification" in window && Notification.permission === "granted") {
     const notif = new Notification("Alarm!", {
-      body: Config.get("alarm_desc") || "Time's up!",
-      icon: "icon_32.png"
+      body: Config.get("alarm_desc") || "Time's up!"
     });
     notif.onclick = dismissAlarm;
   }
 }
 
+
+function checkHourlyChime(now, currentMin, currentSec) {
+  const minderOn = Config.get("hour_minder") === "1";
+  if (!minderOn) return;
+  
+  // Safety check: If the alarm is already ringing, don't play the chime to avoid messy audio!
+  if (alarmIsRinging) return;
+
+  // Trigger exactly at Minute 0, Second 0
+  if (currentMin === 0 && currentSec === 0) {
+    playHourlyChime(now.getHours());
+  }
+}
 
 // --- THEME SYSTEM ---
 function applyTheme() {
@@ -306,6 +334,7 @@ function setupSettingsPanel() {
   const dateToggle = document.getElementById('show-date');
   const glowSlider = document.getElementById('glow-intensity');
   const fontSelect = document.getElementById('clock-font');
+  const minderToggle = document.getElementById('hour-minder');
 
   // 1. Open / Close Logic
   btn.addEventListener('click', () => {
@@ -327,6 +356,7 @@ function setupSettingsPanel() {
     dateToggle.checked = Config.get("show_date") === "1";
     glowSlider.value = Config.get("glow_intensity");
     fontSelect.value = Config.get("clock_font");
+    minderToggle.checked = Config.get("hour_minder") === "1";
 
     // Convert saved hour & min to HH:mm format for the input box
     const h = padZero(parseInt(Config.get("alarm_hour"), 10));
@@ -412,6 +442,12 @@ function setupSettingsPanel() {
     beep();
     setTimeout(beep, 150);
   });
+
+  // Hourly Chime Toggle
+  minderToggle.addEventListener('change', (e) => {
+    Config.set("hour_minder", e.target.checked ? "1" : "0");
+  });
+  
 }
 
 // --- INTERACTIVE FOOTER LOGIC ---

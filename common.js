@@ -29,6 +29,7 @@ const Config = {
       case "date_format": return "0"; // NEW: 0 = Full Text, 1 = US Date, 2 = Global Date, 3 = ISO
       case "show_seconds": return "1"; // 1 = Show, 0 = Hide
       case "show_date": return "1";    // 1 = Show, 0 = Hide
+      case "hour_minder": return "0";  // 0 = Off, 1 = On
       case "glow_intensity": return "10"; // 0 = Off, 10 = Normal, 20 = Max
       case "clock_font": return "digital-7 mono"; // Default font
       default: return "";
