@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,13 +12,13 @@
 
   <!-- This container centers everything perfectly -->
   <div class="clock-container">
-    
+
     <!-- Top row: Alarm indicator -->
     <div id="alarm" class="alarm-indicator"></div>
 
     <!-- Middle row: The massive time display -->
     <div class="clock-display-grid">
-      
+
       <!-- THE GHOST LAYER (Physical unlit segments) -->
       <div class="time-wrapper ghost-layer">
         <span id="ghost-time" class="time-text">88:88</span>
@@ -47,15 +48,19 @@
 
   <!-- The Gear Icon Button -->
   <button id="settings-btn" class="settings-btn">
-    <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none"
+      stroke-linecap="round" stroke-linejoin="round">
       <circle cx="12" cy="12" r="3"></circle>
-      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+      <path
+        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+      </path>
     </svg>
   </button>
 
   <!-- THE NEW FULLSCREEN BUTTON -->
   <button id="fullscreen-btn" class="fullscreen-btn">
-    <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none"
+      stroke-linecap="round" stroke-linejoin="round">
       <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
     </svg>
   </button>
@@ -67,7 +72,7 @@
         <h2>SYSTEM SETTINGS</h2>
         <button id="close-btn" class="close-btn">&times;</button>
       </div>
-      
+
       <div class="modal-body">
         <!-- Neon Glow Slider -->
         <div class="setting-group">
@@ -135,7 +140,8 @@
           <label for="alarm-time">Alarm Time</label>
           <div style="display: flex; gap: 10px;">
             <input type="time" id="alarm-time">
-            <button id="test-alarm-btn" style="background: var(--font-color); color: #000; border: none; padding: 0 10px; border-radius: 4px; cursor: pointer; font-weight: bold;">TEST</button>
+            <button id="test-alarm-btn"
+              style="background: var(--font-color); color: #000; border: none; padding: 0 10px; border-radius: 4px; cursor: pointer; font-weight: bold;">TEST</button>
           </div>
         </div>
 
@@ -144,19 +150,33 @@
           <label for="hour-minder">Hourly Chime (Hour Minder)</label>
           <input type="checkbox" id="hour-minder" class="hi-tech-checkbox">
         </div>
+
+        <!-- News Ticker Toggle -->
+        <div class="setting-group">
+          <label for="show-ticker">News Ticker (Local & Global)</label>
+          <input type="checkbox" id="show-ticker" class="hi-tech-checkbox">
+        </div>
       </div>
+    </div>
+  </div>
+
+  <!-- THE NEWS TICKER -->
+  <div id="ticker-container" class="ticker-container hidden">
+    <div id="ticker-text" class="ticker-text">
+      Initializing News Feed...
     </div>
   </div>
 
   <!-- THE INTERACTIVE FOOTER -->
   <div id="interactive-footer" class="interactive-footer">
-    &copy; <span id="current-year">2026</span> 
-    <a href="https://dammieoptimus.github.io/tgrstartnow/?d=eyJyZWYiOiJEYW1taWVPcHRpbXVzMiIsIm5hbWUiOiJEYW1taWUgKE9wdGltdXMpIEF5b2RlbGUiLCJwaG9uZSI6IjA4MDI4OTc1ODE2IiwicGljIjoiaHR0cHM6Ly9pLmltZ3VyLmNvbS9xcVVFNGFyLmpwZyJ9" target="_blank">Dammie Optimus Solutions</a>
+    &copy; <span id="current-year">2026</span>
+    <a href="https://dammieoptimus.github.io/tgrstartnow/?d=eyJyZWYiOiJEYW1taWVPcHRpbXVzMiIsIm5hbWUiOiJEYW1taWUgKE9wdGltdXMpIEF5b2RlbGUiLCJwaG9uZSI6IjA4MDI4OTc1ODE2IiwicGljIjoiaHR0cHM6Ly9pLmltZ3VyLmNvbS9xcVVFNGFyLmpwZyJ9"
+      target="_blank">Dammie Optimus Solutions</a>
   </div>
 
-  <script src="common.js"></script>  
-  <script src="clock.js"></script>      
+  <script src="common.js"></script>
+  <script src="clock.js"></script>
 
 </body>
-</html>
 
+</html>

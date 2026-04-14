@@ -486,3 +486,107 @@ setupFooter();
 
 // Start the Dashboard wiring!
 setupSettingsPanel();
+
+
+// --- NEWS TICKER & EXPONENTIAL BACKOFF ENGINE ---
+const proverbs =[
+  "Time is money.", 
+  "A stitch in time saves nine.", 
+  "Better late than never.", 
+  "Time waits for no man.", 
+  "The two most powerful warriors are patience and time.",
+  "Punctuality is the soul of business."
+];
+
+let tickerRetryCount = 0;
+let tickerTimeout;
+
+async function fetchNews() {
+  const tickerEnabled = Config.get("show_ticker") === "1";
+  const container = document.getElementById('ticker-container');
+  const tickerText = document.getElementById('ticker-text');
+  
+  if (!tickerEnabled) {
+    container.classList.add('hidden');
+    clearTimeout(tickerTimeout);
+    return;
+  }
+  container.classList.remove('hidden');
+
+  try {
+    // We use rss2json API to easily convert XML RSS feeds into readable JSON
+    const localUrl = encodeURIComponent('https://www.channelstv.com/feed/');
+    const globalUrl = encodeURIComponent('http://feeds.bbci.co.uk/news/world/rss.xml');
+    
+    // DUAL-FETCH: Send both requests simultaneously!
+    const[localRes, globalRes] = await Promise.all([
+      fetch(`https://api.rss2json.com/v1/api.json?rss_url=${localUrl}`),
+      fetch(`https://api.rss2json.com/v1/api.json?rss_url=${globalUrl}`)
+    ]);
+
+    const localData = await localRes.json();
+    const globalData = await globalRes.json();
+
+    if (localData.status !== "ok" && globalData.status !== "ok") throw new Error("Both feeds failed");
+
+    // Shuffle them together: 1 Local, 1 Global...
+    let combinedNews =[];
+    for (let i = 0; i < 5; i++) {
+      if (localData.items && localData.items[i]) combinedNews.push(`[CHANNELS TV] ${localData.items[i].title}`);
+      if (globalData.items && globalData.items[i]) combinedNews.push(`[BBC WORLD] ${globalData.items[i].title}`);
+    }
+
+    // Join with a cool digital separator
+    const finalString = combinedNews.join("  ///  ") + "  ///  ";
+    startMarquee(finalString);
+    
+    // Success! Reset backoff counter and fetch again in 30 minutes
+    tickerRetryCount = 0;
+    tickerTimeout = setTimeout(fetchNews, 30 * 60 * 1000); 
+
+  } catch (error) {
+    console.log("News fetch failed, triggering fallback...", error);
+    
+    // FALLBACK: Show Proverbs
+    const proverbString = "[NETWORK OFFLINE]  " + proverbs.join("  ///  ") + "  ///  ";
+    startMarquee(proverbString);
+
+    // EXPONENTIAL BACKOFF: 2s, 4s, 8s, 16s, up to max 5 minutes
+    tickerRetryCount++;
+    const delay = Math.min((Math.pow(2, tickerRetryCount) * 1000), 300000); 
+    console.log(`Retrying network in ${delay / 1000} seconds...`);
+    tickerTimeout = setTimeout(fetchNews, delay);
+  }
+}
+
+function startMarquee(text) {
+  const tickerText = document.getElementById('ticker-text');
+  tickerText.textContent = text;
+  
+  // Calculate exact scrolling speed based on text length (50 pixels per second)
+  // This ensures it never scrolls too fast if the text is short, or too slow if it's long!
+  const duration = text.length * 0.15; 
+  
+  tickerText.style.animation = `scrollTicker ${duration}s linear infinite`;
+}
+
+// Wire the Dashboard Toggle
+const tickerToggle = document.getElementById('show-ticker');
+tickerToggle.checked = Config.get("show_ticker") === "1";
+tickerToggle.addEventListener('change', (e) => {
+  Config.set("show_ticker", e.target.checked ? "1" : "0");
+  fetchNews(); // Instantly start or stop
+});
+
+// Add the dynamic keyframes for the marquee to the document dynamically
+const style = document.createElement('style');
+style.innerHTML = `
+  @keyframes scrollTicker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+  }
+`;
+document.head.appendChild(style);
+
+// Start the engine
+fetchNews();

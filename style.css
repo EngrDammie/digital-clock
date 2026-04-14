@@ -308,3 +308,29 @@ a:hover {
   color: #fff;
   text-shadow: var(--glow-effect); /* Glows brightly when hovered! */
 }
+
+
+/* --- NEWS TICKER TAPE --- */
+.ticker-container {
+  position: fixed;
+  bottom: 45px; /* Sits perfectly just above the hidden footer */
+  width: 100%;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.6); /* Dark semi-transparent background */
+  border-top: 1px solid rgba(0, 255, 255, 0.2);
+  border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+  padding: 8px 0;
+  z-index: 90;
+}
+
+.ticker-text {
+  display: inline-block;
+  white-space: nowrap;
+  font-family: 'Courier New', monospace; /* Hacker aesthetic */
+  font-size: 1.2rem;
+  color: var(--font-color);
+  text-shadow: 0 0 5px var(--font-color);
+  
+  /* The Physics: It will be animated by JavaScript to handle dynamic widths */
+  padding-left: 100vw; /* Starts all the way off the right edge */
+}
