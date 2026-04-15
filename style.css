@@ -1,10 +1,13 @@
 /* 1. MASTER DIALS (CSS Variables) */
 :root {
-  --bg-color: #0a0a0c; /* Deep, dark futuristic gray/black */
-  --font-color: #00ffff; /* Hi-tech Cyan/Neon Blue */
+  --bg-color: #0a0a0c;
+  /* Deep, dark futuristic gray/black */
+  --font-color: #00ffff;
+  /* Hi-tech Cyan/Neon Blue */
   /* This creates a glowing effect by layering shadows */
-  --glow-effect: 0 0 10px rgba(0, 255, 255, 0.4), 0 0 20px rgba(0, 255, 255, 0.2); 
-  --clock-font: 'digital-7 mono'; /* The new master font dial! */
+  --glow-effect: 0 0 10px rgba(0, 255, 255, 0.4), 0 0 20px rgba(0, 255, 255, 0.2);
+  --clock-font: 'digital-7 mono';
+  /* The new master font dial! */
 }
 
 /* 2. CUSTOM FONT */
@@ -21,14 +24,17 @@ body {
   /* A subtle circular gradient to give the background depth */
   background-image: radial-gradient(circle at center, #1a1a24 0%, var(--bg-color) 80%);
   color: var(--font-color);
-  font-family: var(--clock-font), 'Courier New', monospace; /* Failsafe if your font doesn't load */
-  
+  font-family: var(--clock-font), 'Courier New', monospace;
+  /* Failsafe if your font doesn't load */
+
   /* Modern Flexbox Layout to perfectly center the clock vertically and horizontally */
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh; /* Takes up 100% of the screen height */
-  overflow: hidden; /* Prevents scrollbars */
+  height: 100vh;
+  /* Takes up 100% of the screen height */
+  overflow: hidden;
+  /* Prevents scrollbars */
 }
 
 /* 4. CLOCK LAYOUT (7-Segment Aligned Edition) */
@@ -39,40 +45,47 @@ body {
   justify-content: center;
   text-shadow: var(--glow-effect);
   width: 100%;
-  
+
   /* THE MATHEMATICAL CEILING */
   /* 34vw and 55vh ensures that when multiplied by our 1.6x total height, it NEVER exceeds 95% of your screen height */
-  --base-size: min(34vw, 55vh); 
+  --base-size: min(34vw, 55vh);
 
   /* THE "DEAD-CENTER" TUNING DIAL */
   /* This pulls the entire clock up to counteract the huge invisible padding at the top of your custom font. */
   /* If it's still too low, change to -8vh or -10vh. If it's too high, change to -4vh. */
-  margin-top: -20vh; 
+  margin-top: -20vh;
 }
 
 /* THE GRID OVERLAY SYSTEM */
 .clock-display-grid {
-  display: grid; /* The ultimate trick for stacking elements */
+  display: grid;
+  /* The ultimate trick for stacking elements */
   justify-content: center;
 }
 
 .ghost-layer {
-  grid-area: 1 / 1; /* Places it in Cell 1 */
-  opacity: 0.08; /* Extremely dim, like unlit LCD glass */
-  color: var(--font-color); 
-  text-shadow: none; /* Unlit segments don't glow! */
-  z-index: 1; /* Keeps it in the background */
+  grid-area: 1 / 1;
+  /* Places it in Cell 1 */
+  opacity: 0.08;
+  /* Extremely dim, like unlit LCD glass */
+  color: var(--font-color);
+  text-shadow: none;
+  /* Unlit segments don't glow! */
+  z-index: 1;
+  /* Keeps it in the background */
 }
 
 .real-layer {
-  grid-area: 1 / 1; /* Places it EXACTLY on top of the ghost layer in Cell 1 */
-  z-index: 2; /* Brings the glowing numbers to the front */
+  grid-area: 1 / 1;
+  /* Places it EXACTLY on top of the ghost layer in Cell 1 */
+  z-index: 2;
+  /* Brings the glowing numbers to the front */
 }
 
 .time-wrapper {
   display: flex;
   /* 'stretch' forces the side block to be the EXACT same height as the big numbers' invisible box */
-  align-items: stretch; 
+  align-items: stretch;
   justify-content: center;
   font-size: var(--base-size);
   white-space: nowrap;
@@ -85,47 +98,53 @@ body {
   letter-spacing: 0.02em;
   margin: 0;
   /* This forces custom fonts to make all numbers the exact same physical width! */
-  font-variant-numeric: tabular-nums; 
+  font-variant-numeric: tabular-nums;
 }
 
 .side-info {
   display: flex;
   flex-direction: column;
   /* This throws PM to the absolute top and Seconds to the absolute bottom */
-  justify-content: space-between; 
+  justify-content: space-between;
   margin-left: 0.15em;
-  font-size: 0.28em; 
-  line-height: 1; 
-  height: auto; /* Removes our old height guess */
-  
+  font-size: 0.28em;
+  line-height: 1;
+  height: auto;
+  /* Removes our old height guess */
+
   /* === THE TUNING DIALS === */
   /* If the PM is too high, increase padding-top (e.g., 0.3em). If too low, decrease it. */
-  padding-top: 0.8em;    
-  
+  padding-top: 0.8em;
+
   /* If Seconds are too low, increase padding-bottom (e.g., 0.3em). If too high, decrease it. */
-  padding-bottom: 0.2em;  
+  padding-bottom: 0.2em;
 }
 
 .date-wrapper {
   font-size: calc(var(--base-size) * 0.25);
   letter-spacing: 0.05em;
-  margin-top: 0.15em; /* Safely pushes the date below the time block */
+  margin-top: 0.15em;
+  /* Safely pushes the date below the time block */
   text-transform: uppercase;
   white-space: nowrap;
-  text-align: center; 
+  text-align: center;
   width: 100%;
 }
 
 .alarm-indicator {
   /* DETACHING FROM THE CONTAINER */
   position: absolute;
-  top: 5vh; /* Locks it 5% from the top edge of your browser window */
+  top: 5vh;
+  /* Locks it 5% from the top edge of your browser window */
   left: 50%;
-  transform: translateX(-50%); /* Perfect horizontal dead-centering */
-  z-index: 50; /* Ensures it floats on top of everything else */
+  transform: translateX(-50%);
+  /* Perfect horizontal dead-centering */
+  z-index: 50;
+  /* Ensures it floats on top of everything else */
 
   /* SIZING AND PAINT */
-  font-size: calc(var(--base-size) * 0.15); /* Slightly scaled down so it's a sleek HUD element */
+  font-size: calc(var(--base-size) * 0.15);
+  /* Slightly scaled down so it's a sleek HUD element */
   color: #ff3366;
   text-shadow: 0 0 10px rgba(255, 51, 102, 0.5);
   white-space: nowrap;
@@ -136,18 +155,21 @@ body {
 a {
   color: var(--font-color);
   text-decoration: none;
-  opacity: 0.5; /* Makes the link less distracting */
+  opacity: 0.5;
+  /* Makes the link less distracting */
   transition: opacity 0.3s ease;
 }
 
 a:hover {
-  opacity: 1; /* Brightens up when you hover with the mouse */
+  opacity: 1;
+  /* Brightens up when you hover with the mouse */
 }
 
 /* --- PHASE 2: DASHBOARD & SETTINGS --- */
 
 /* Top Right Control Buttons */
-.settings-btn, .fullscreen-btn {
+.settings-btn,
+.fullscreen-btn {
   position: absolute;
   top: 20px;
   background: none;
@@ -159,16 +181,31 @@ a:hover {
   z-index: 100;
 }
 
-.settings-btn { right: 20px; }
-.fullscreen-btn { right: 60px; } /* Sits right next to the gear icon */
+.settings-btn {
+  right: 20px;
+}
 
-.settings-btn:hover, .fullscreen-btn:hover {
+.fullscreen-btn {
+  right: 60px;
+}
+
+/* Sits right next to the gear icon */
+
+.settings-btn:hover,
+.fullscreen-btn:hover {
   opacity: 1;
   text-shadow: var(--glow-effect);
 }
 
-.settings-btn:hover { transform: rotate(90deg); }
-.fullscreen-btn:hover { transform: scale(1.1); } /* Pops out slightly when hovered */
+.settings-btn:hover {
+  transform: rotate(90deg);
+}
+
+.fullscreen-btn:hover {
+  transform: scale(1.1);
+}
+
+/* Pops out slightly when hovered */
 
 /* The Modal Overlay (Darkens the screen behind the panel) */
 .modal-overlay {
@@ -183,7 +220,8 @@ a:hover {
   justify-content: center;
   align-items: center;
   opacity: 0;
-  pointer-events: none; /* Can't click it when hidden */
+  pointer-events: none;
+  /* Can't click it when hidden */
   transition: opacity 0.3s ease;
   z-index: 200;
 }
@@ -202,7 +240,8 @@ a:hover {
   width: 90%;
   max-width: 400px;
   border-radius: 8px;
-  font-family: Arial, sans-serif; /* Clean font for settings */
+  font-family: Arial, sans-serif;
+  /* Clean font for settings */
   color: #fff;
   padding: 20px;
 }
@@ -279,20 +318,25 @@ a:hover {
   position: fixed;
   bottom: 20px;
   left: 50%;
-  transform: translateX(-50%); /* Dead-centers the footer */
+  transform: translateX(-50%);
+  /* Dead-centers the footer */
   font-family: Arial, sans-serif;
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.4); /* Faint white text */
-  opacity: 0; /* Completely invisible by default */
-  transition: opacity 0.8s ease; /* Smooth, cinematic fade */
+  color: rgba(255, 255, 255, 0.4);
+  /* Faint white text */
+  opacity: 0;
+  /* Completely invisible by default */
+  transition: opacity 0.8s ease;
+  /* Smooth, cinematic fade */
   z-index: 100;
-  pointer-events: none; 
+  pointer-events: none;
 }
 
 /* JavaScript will add this class when the mouse moves */
 .interactive-footer.active {
   opacity: 1;
-  pointer-events: auto; /* Makes the link clickable */
+  pointer-events: auto;
+  /* Makes the link clickable */
 }
 
 /* Styling your business link */
@@ -306,17 +350,20 @@ a:hover {
 
 .interactive-footer a:hover {
   color: #fff;
-  text-shadow: var(--glow-effect); /* Glows brightly when hovered! */
+  text-shadow: var(--glow-effect);
+  /* Glows brightly when hovered! */
 }
 
 
 /* --- NEWS TICKER TAPE --- */
 .ticker-container {
   position: fixed;
-  bottom: 45px; /* Sits perfectly just above the hidden footer */
+  bottom: 45px;
+  /* Sits perfectly just above the hidden footer */
   width: 100%;
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.6); /* Dark semi-transparent background */
+  background: rgba(0, 0, 0, 0.6);
+  /* Dark semi-transparent background */
   border-top: 1px solid rgba(0, 255, 255, 0.2);
   border-bottom: 1px solid rgba(0, 255, 255, 0.2);
   padding: 8px 0;
@@ -326,13 +373,20 @@ a:hover {
 .ticker-text {
   display: inline-block;
   white-space: nowrap;
-  font-family: 'Courier New', monospace; /* Hacker aesthetic */
+  font-family: 'Courier New', monospace;
+  /* Hacker aesthetic */
   font-size: 1.2rem;
   color: var(--font-color);
-  text-shadow: 0 0 5px var(--font-color);
-  
+  /* text-shadow: 0 0 5px var(--font-color); */
+
+  /* SENIOR TRICKS: Force the browser to render the text as sharply as possible during motion */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+
   /* The Physics: It will be animated by JavaScript to handle dynamic widths */
-  padding-left: 100vw; /* Starts all the way off the right edge */
+  padding-left: 100vw;
+  /* Starts all the way off the right edge */
 }
 
 /* Pause the news ticker when the user hovers over it with their mouse */
