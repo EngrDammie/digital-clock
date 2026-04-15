@@ -168,7 +168,7 @@ function checkAlarm(now, currentHour, currentMin, currentSec) {
 
 // --- UNBREAKABLE AUDIO SYNTHESIZER ---
 let alarmBeepInterval;
-let audioCtx; 
+let audioCtx;
 
 function getAudioContext() {
   if (!audioCtx) {
@@ -183,24 +183,24 @@ function beep() {
   const ctx = getAudioContext();
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
-  
-  osc.type = 'square'; 
-  osc.frequency.setValueAtTime(880, ctx.currentTime); 
-  
+
+  osc.type = 'square';
+  osc.frequency.setValueAtTime(880, ctx.currentTime);
+
   gain.gain.setValueAtTime(1, ctx.currentTime);
   gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
-  
+
   osc.connect(gain);
   gain.connect(ctx.destination);
-  
+
   osc.start(ctx.currentTime);
   osc.stop(ctx.currentTime + 0.1);
 }
 
 // SHARED DOUBLE-BEEP: Used by both Alarm and Hourly Chime
 function playDoubleBeep() {
-  beep(); 
-  setTimeout(beep, 150); 
+  beep();
+  setTimeout(beep, 150);
 }
 
 function playAlarmSound() {
@@ -219,14 +219,14 @@ function dismissAlarm() {
 function playHourlyChime(currentHour24) {
   // QUIET HOURS: Do not beep from 1 AM through 6 AM. 
   if (currentHour24 >= 1 && currentHour24 <= 6) return;
-  
+
   // Convert 24-hour time to 12-hour format (e.g., 20:00 becomes 8)
-  let beepsRemaining = currentHour24 % 12 || 12; 
-  
+  let beepsRemaining = currentHour24 % 12 || 12;
+
   // Play the first beep immediately
   playDoubleBeep();
   beepsRemaining--;
-  
+
   // If more beeps are needed, loop them 1 second apart!
   if (beepsRemaining > 0) {
     const chimeInterval = setInterval(() => {
@@ -235,7 +235,7 @@ function playHourlyChime(currentHour24) {
       if (beepsRemaining <= 0) {
         clearInterval(chimeInterval); // Stop when we hit the exact count
       }
-    }, 1000); 
+    }, 1000);
   }
 }
 
@@ -253,7 +253,7 @@ function showNotification() {
 function checkHourlyChime(now, currentMin, currentSec) {
   const minderOn = Config.get("hour_minder") === "1";
   if (!minderOn) return;
-  
+
   // Safety check: If the alarm is already ringing, don't play the chime to avoid messy audio!
   if (alarmIsRinging) return;
 
@@ -277,8 +277,8 @@ function applyTheme() {
   if (intensity === 0) {
     document.documentElement.style.setProperty('--glow-effect', 'none');
   } else {
-    const glowColor1 = fontColor + "80"; 
-    const glowColor2 = fontColor + "4D"; 
+    const glowColor1 = fontColor + "80";
+    const glowColor2 = fontColor + "4D";
     const glowString = `0 0 ${intensity}px ${glowColor1}, 0 0 ${intensity * 2}px ${glowColor2}`;
     document.documentElement.style.setProperty('--glow-effect', glowString);
   }
@@ -305,7 +305,7 @@ function init() {
   });
 
   updateClock();
-  
+
   const msUntilNextSecond = 1000 - new Date().getMilliseconds();
   setTimeout(() => {
     updateClock();
@@ -414,12 +414,12 @@ function setupSettingsPanel() {
   // Visibility Toggles
   secToggle.addEventListener('change', (e) => {
     Config.set("show_seconds", e.target.checked ? "1" : "0");
-    updateClock(); 
+    updateClock();
   });
 
   dateToggle.addEventListener('change', (e) => {
     Config.set("show_date", e.target.checked ? "1" : "0");
-    updateClock(); 
+    updateClock();
   });
 
   // Glow Slider
@@ -447,7 +447,7 @@ function setupSettingsPanel() {
   minderToggle.addEventListener('change', (e) => {
     Config.set("hour_minder", e.target.checked ? "1" : "0");
   });
-  
+
 }
 
 // --- INTERACTIVE FOOTER LOGIC ---
@@ -461,10 +461,10 @@ function setupFooter() {
   function wakeUpInterface() {
     // Show the footer
     footer.classList.add('active');
-    
+
     // Clear the old countdown timer
     clearTimeout(idleTimer);
-    
+
     // Start a new 3-second countdown to hide it again
     idleTimer = setTimeout(() => {
       footer.classList.remove('active');
@@ -476,7 +476,7 @@ function setupFooter() {
   window.addEventListener('mousedown', wakeUpInterface); // Mouse clicks
   window.addEventListener('keydown', wakeUpInterface);   // Keyboard typing
   window.addEventListener('touchstart', wakeUpInterface);// Mobile screen tapping
-  
+
   // Trigger it once when the page first loads
   wakeUpInterface();
 }
@@ -489,11 +489,11 @@ setupSettingsPanel();
 
 
 // --- NEWS TICKER & EXPONENTIAL BACKOFF ENGINE ---
-const proverbs =[
-  "Time is money.", 
-  "A stitch in time saves nine.", 
-  "Better late than never.", 
-  "Time waits for no man.", 
+const proverbs = [
+  "Time is money.",
+  "A stitch in time saves nine.",
+  "Better late than never.",
+  "Time waits for no man.",
   "The two most powerful warriors are patience and time.",
   "Punctuality is the soul of business."
 ];
@@ -501,11 +501,33 @@ const proverbs =[
 let tickerRetryCount = 0;
 let tickerTimeout;
 
+// A robust list of premium local and international news feeds
+const newsSources = [
+  { id: "CHANNELS TV", url: "https://www.channelstv.com/feed/" },
+  { id: "VANGUARD", url: "https://www.vanguardngr.com/feed/" },
+  { id: "PUNCH", url: "https://punchng.com/feed/" },
+  { id: "PREMIUM TIMES", url: "https://www.premiumtimesng.com/feed/" },
+  //{ id: "THE NATION", url: "https://thenationonlineng.net/feed/" },
+  { id: "BBC WORLD", url: "http://feeds.bbci.co.uk/news/world/rss.xml" },
+  { id: "CNN", url: "http://rss.cnn.com/rss/edition.rss" },
+  { id: "FOX NEWS LATEST", url: "http://feeds.foxnews.com/foxnews/latest" },
+  { id: "FOX NEWS WORLD", url: "http://feeds.foxnews.com/foxnews/world" },
+  { id: "FOX NEWS POLITICS", url: "http://feeds.foxnews.com/foxnews/politics" },
+  { id: "AL JAZEERA", url: "https://www.aljazeera.com/xml/rss/all.xml" },
+  { id: "NYT GLOBAL", url: "https://rss.nytimes.com/services/xml/rss/nyt/World.xml" },
+  //{ id: "CNBC", url: "https://search.cnbc.com/rs/search/combinedcms/view.xml?profile=120000000&id=10000664" },
+  { id: "WALL STREET JOURNAL", url: "https://feeds.a.dj.com/rss/WSJcomUSBusiness.xml" },
+  { id: "TECHCRUNCH", url: "https://techcrunch.com/feed/" },
+  { id: "THE VERGE", url: "https://www.theverge.com/rss/index.xml" },
+  { id: "NASA", url: "https://www.nasa.gov/rss/dyn/breaking_news.rss" },
+  // { id: "ESPN SPORTS", url: "https://www.espn.com/espn/rss/news" },
+  // { id: "IGN GAMING", url: "https://feeds.feedburner.com/ign/news" }
+];
+
 async function fetchNews() {
   const tickerEnabled = Config.get("show_ticker") === "1";
   const container = document.getElementById('ticker-container');
-  const tickerText = document.getElementById('ticker-text');
-  
+
   if (!tickerEnabled) {
     container.classList.add('hidden');
     clearTimeout(tickerTimeout);
@@ -514,59 +536,78 @@ async function fetchNews() {
   container.classList.remove('hidden');
 
   try {
-    // We use rss2json API to easily convert XML RSS feeds into readable JSON
-    const localUrl = encodeURIComponent('https://www.channelstv.com/feed/');
-    const globalUrl = encodeURIComponent('http://feeds.bbci.co.uk/news/world/rss.xml');
-    
-    // DUAL-FETCH: Send both requests simultaneously!
-    const[localRes, globalRes] = await Promise.all([
-      fetch(`https://api.rss2json.com/v1/api.json?rss_url=${localUrl}`),
-      fetch(`https://api.rss2json.com/v1/api.json?rss_url=${globalUrl}`)
-    ]);
+    // 1. Create a network request for every single news source
+    const promises = newsSources.map(source => {
+      const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(source.url)}`;
+      return fetch(apiUrl)
+        .then(res => res.json())
+        .then(data => ({ sourceId: source.id, data: data }));
+    });
 
-    const localData = await localRes.json();
-    const globalData = await globalRes.json();
+    // 2. FIRE THEM ALL! Wait for everyone to finish (success or fail)
+    const results = await Promise.allSettled(promises);
 
-    if (localData.status !== "ok" && globalData.status !== "ok") throw new Error("Both feeds failed");
+    let activeFeeds = [];
 
-    // Shuffle them together: 1 Local, 1 Global...
-    let combinedNews =[];
+    // 3. Filter the successes and LOG them exactly as you requested
+    results.forEach(result => {
+      if (result.status === 'fulfilled' && result.value.data.status === "ok") {
+        console.log(`✅ SUCCESS: Fetched live news from [${result.value.sourceId}]`);
+        activeFeeds.push(result.value);
+      } else {
+        console.warn(`❌ FAILED: A news source is currently offline or unreachable.`);
+      }
+    });
+
+    // If literally every single network is down, throw an error to trigger Backoff
+    if (activeFeeds.length === 0) {
+      throw new Error("CRITICAL: All news feeds failed to load.");
+    }
+
+    // 4. Stitching the News (The Deck Shuffle)
+    // We grab the top 5 headlines from each successful network, dealing them like cards
+    // e.g. [Channels] -> [CNN] -> [Punch] -> [BBC]
+    let combinedNews = [];
     for (let i = 0; i < 5; i++) {
-      if (localData.items && localData.items[i]) combinedNews.push(`[CHANNELS TV] ${localData.items[i].title}`);
-      if (globalData.items && globalData.items[i]) combinedNews.push(`[BBC WORLD] ${globalData.items[i].title}`);
+      activeFeeds.forEach(feed => {
+        if (feed.data.items && feed.data.items[i]) {
+          combinedNews.push(`[${feed.sourceId}] ${feed.data.items[i].title}`);
+        }
+      });
     }
 
     // Join with a cool digital separator
     const finalString = combinedNews.join("  ///  ") + "  ///  ";
     startMarquee(finalString);
-    
+
     // Success! Reset backoff counter and fetch again in 30 minutes
     tickerRetryCount = 0;
-    tickerTimeout = setTimeout(fetchNews, 30 * 60 * 1000); 
+    tickerTimeout = setTimeout(fetchNews, 30 * 60 * 1000);
 
   } catch (error) {
     console.log("News fetch failed, triggering fallback...", error);
-    
+
     // FALLBACK: Show Proverbs
     const proverbString = "[NETWORK OFFLINE]  " + proverbs.join("  ///  ") + "  ///  ";
     startMarquee(proverbString);
 
     // EXPONENTIAL BACKOFF: 2s, 4s, 8s, 16s, up to max 5 minutes
     tickerRetryCount++;
-    const delay = Math.min((Math.pow(2, tickerRetryCount) * 1000), 300000); 
+    const delay = Math.min((Math.pow(2, tickerRetryCount) * 1000), 300000);
     console.log(`Retrying network in ${delay / 1000} seconds...`);
     tickerTimeout = setTimeout(fetchNews, delay);
   }
 }
 
 function startMarquee(text) {
+  // ... Keep your existing startMarquee code exactly as it is down here!
   const tickerText = document.getElementById('ticker-text');
   tickerText.textContent = text;
-  
+
   // Calculate exact scrolling speed based on text length (50 pixels per second)
   // This ensures it never scrolls too fast if the text is short, or too slow if it's long!
-  const duration = text.length * 0.15; 
-  
+  const duration = text.length * 0.15;
+
   tickerText.style.animation = `scrollTicker ${duration}s linear infinite`;
 }
 

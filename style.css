@@ -334,3 +334,8 @@ a:hover {
   /* The Physics: It will be animated by JavaScript to handle dynamic widths */
   padding-left: 100vw; /* Starts all the way off the right edge */
 }
+
+/* Pause the news ticker when the user hovers over it with their mouse */
+.ticker-container:hover .ticker-text {
+  animation-play-state: paused !important;
+}
