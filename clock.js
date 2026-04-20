@@ -564,23 +564,22 @@ async function fetchNews() {
       throw new Error("CRITICAL: All news feeds failed to load.");
     }
 
-    // 4. Stitching the News (The Deck Shuffle)
-    // We grab the top 5 headlines from each successful network, dealing them like cards
-    // e.g. [Channels] -> [CNN] -> [Punch] -> [BBC]
+    // 4. Stitiching the News (With Clickable Links!)
     let combinedNews = [];
     for (let i = 0; i < 5; i++) {
       activeFeeds.forEach(feed => {
         if (feed.data.items && feed.data.items[i]) {
-          combinedNews.push(`[${feed.sourceId}] ${feed.data.items[i].title}`);
+          const item = feed.data.items[i];
+          // Notice we now grab item.link and wrap it in an HTML anchor tag
+          combinedNews.push(`[${feed.sourceId}] ${item.title} <a href="${item.link}" target="_blank" class="ticker-link">[Read]</a>`);
         }
       });
     }
 
-    // Join with a cool digital separator
-    const finalString = combinedNews.join("  ///  ") + "  ///  ";
-    startMarquee(finalString);
+    // Join with HTML non-breaking spaces for a clean gap
+    const finalHtml = combinedNews.join(" &nbsp;&nbsp;///&nbsp;&nbsp; ") + " &nbsp;&nbsp;///&nbsp;&nbsp; ";
+    startMarquee(finalHtml);
 
-    // Success! Reset backoff counter and fetch again in 30 minutes
     tickerRetryCount = 0;
     tickerTimeout = setTimeout(fetchNews, 30 * 60 * 1000);
 
@@ -588,10 +587,9 @@ async function fetchNews() {
     console.log("News fetch failed, triggering fallback...", error);
 
     // FALLBACK: Show Proverbs
-    const proverbString = "[NETWORK OFFLINE]  " + proverbs.join("  ///  ") + "  ///  ";
-    startMarquee(proverbString);
+    const proverbHtml = "[NETWORK OFFLINE] &nbsp;&nbsp;///&nbsp;&nbsp; " + proverbs.join(" &nbsp;&nbsp;///&nbsp;&nbsp; ") + " &nbsp;&nbsp;///&nbsp;&nbsp; ";
+    startMarquee(proverbHtml);
 
-    // EXPONENTIAL BACKOFF: 2s, 4s, 8s, 16s, up to max 5 minutes
     tickerRetryCount++;
     const delay = Math.min((Math.pow(2, tickerRetryCount) * 1000), 300000);
     console.log(`Retrying network in ${delay / 1000} seconds...`);
@@ -599,14 +597,16 @@ async function fetchNews() {
   }
 }
 
-function startMarquee(text) {
-  // ... Keep your existing startMarquee code exactly as it is down here!
+function startMarquee(htmlContent) {
   const tickerText = document.getElementById('ticker-text');
-  tickerText.textContent = text;
 
-  // Calculate exact scrolling speed based on text length (50 pixels per second)
-  // This ensures it never scrolls too fast if the text is short, or too slow if it's long!
-  const duration = text.length * 0.15;
+  // Use innerHTML so the browser renders the clickable links!
+  tickerText.innerHTML = htmlContent;
+
+  // SENIOR TRICK: We use .innerText to calculate the speed based ONLY on visible letters. 
+  // If we used the HTML string, it would count all the hidden <a href="..."> code and scroll way too slow!
+  const visibleLength = tickerText.innerText.length;
+  const duration = visibleLength * 0.15;
 
   tickerText.style.animation = `scrollTicker ${duration}s linear infinite`;
 }
@@ -616,10 +616,10 @@ const tickerToggle = document.getElementById('show-ticker');
 tickerToggle.checked = Config.get("show_ticker") === "1";
 tickerToggle.addEventListener('change', (e) => {
   Config.set("show_ticker", e.target.checked ? "1" : "0");
-  fetchNews(); // Instantly start or stop
+  fetchNews();
 });
 
-// Add the dynamic keyframes for the marquee to the document dynamically
+// Add the dynamic keyframes
 const style = document.createElement('style');
 style.innerHTML = `
   @keyframes scrollTicker {

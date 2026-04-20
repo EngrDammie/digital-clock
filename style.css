@@ -393,3 +393,19 @@ a:hover {
 .ticker-container:hover .ticker-text {
   animation-play-state: paused !important;
 }
+
+/* Styling for the clickable News Links */
+.ticker-link {
+  color: #ffeb3b; /* A bright yellow to pop against the cyan/hacker green text */
+  text-decoration: none;
+  font-weight: bold;
+  margin-left: 8px;
+  transition: all 0.3s ease;
+  pointer-events: auto; /* Ensures it can be clicked */
+}
+
+.ticker-link:hover {
+  color: #fff;
+  text-decoration: underline;
+  text-shadow: 0 0 8px rgba(255, 235, 59, 0.8); /* Glows yellow when hovered */
+}
