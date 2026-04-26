@@ -216,28 +216,81 @@ function dismissAlarm() {
 }
 
 // NEW: Hourly Chime Engine
+// NEW: Smart Hourly Chime & AI Voice Engine
+// A list of exciting AI voice announcements. 
+// You can easily add as many as you want here! Just use [TIME] where the hour should go.
+const voicePhrases = [
+  "Attention commander, it is exactly [TIME].",
+  "System update: The current time is [TIME].",
+  "Time flies! It has just turned [TIME].",
+  "Mainframe synchronized. The local time is [TIME].",
+  "Heads up! The clock has struck [TIME].",
+  "Just a quick time check: it is [TIME] on the dot.",
+  "Chronos system online. It is currently [TIME].",
+  "A new hour begins. It is exactly [TIME].",
+  "Information alert: The time has reached [TIME].",
+  "Greetings! Your digital clock reports it is [TIME].",
+  "Tick tock! The time is now [TIME].",
+  "Reporting in. The local time is exactly [TIME].",
+  "Another hour conquered. It is [TIME].",
+  "Dashboard update: The time is currently [TIME].",
+  "Alert! The hour has changed to [TIME].",
+  "Good news! You have successfully made it to [TIME].",
+  "Mark the hour! It is exactly [TIME].",
+  "Notice: The local time is [TIME]. Stay awesome.",
+  "Time sequence initiated. It is now [TIME].",
+  "Be advised, the time is exactly [TIME]."
+];
+
+// NEW: Smart Hourly Chime & AI Voice Engine
 function playHourlyChime(currentHour24) {
-  // QUIET HOURS: Do not beep from 1 AM through 6 AM. 
+  // QUIET HOURS: Do not chime/speak from 1 AM through 6 AM. 
   if (currentHour24 >= 1 && currentHour24 <= 6) return;
 
-  // Convert 24-hour time to 12-hour format (e.g., 20:00 becomes 8)
-  let beepsRemaining = currentHour24 % 12 || 12;
+  const minderStyle = Config.get("hour_minder");
 
-  // Play the first beep immediately
-  playDoubleBeep();
-  beepsRemaining--;
+  // Determine standard 12-hour format
+  let displayHour = currentHour24 % 12 || 12;
+  let amPm = currentHour24 >= 12 ? "PM" : "AM";
+  let timeString = `${displayHour} ${amPm}`;
 
-  // If more beeps are needed, loop them 1 second apart!
-  if (beepsRemaining > 0) {
-    const chimeInterval = setInterval(() => {
+  if (minderStyle === "1") {
+    // === STYLE 1: DIGITAL BEEPS ===
+    let beepsRemaining = displayHour;
+    playDoubleBeep();
+    beepsRemaining--;
+
+    if (beepsRemaining > 0) {
+      const chimeInterval = setInterval(() => {
+        playDoubleBeep();
+        beepsRemaining--;
+        if (beepsRemaining <= 0) clearInterval(chimeInterval);
+      }, 1000);
+    }
+  }
+  else if (minderStyle === "2") {
+    // === STYLE 2: AI VOICE ANNOUNCEMENT ===
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+
+      // Roll the digital dice to pick a random phrase!
+      const randomIndex = Math.floor(Math.random() * voicePhrases.length);
+      const selectedPhrase = voicePhrases[randomIndex];
+
+      // Swap the [TIME] placeholder with the actual time
+      const announcement = selectedPhrase.replace("[TIME]", timeString);
+
+      const speech = new SpeechSynthesisUtterance(announcement);
+      speech.rate = 0.9; // Keeps it clear and distinguished
+      speech.pitch = 1;
+
+      window.speechSynthesis.speak(speech);
+    } else {
       playDoubleBeep();
-      beepsRemaining--;
-      if (beepsRemaining <= 0) {
-        clearInterval(chimeInterval); // Stop when we hit the exact count
-      }
-    }, 1000);
+    }
   }
 }
+
 
 function showNotification() {
   // Modern standard Notification API
@@ -251,10 +304,12 @@ function showNotification() {
 
 
 function checkHourlyChime(now, currentMin, currentSec) {
-  const minderOn = Config.get("hour_minder") === "1";
-  if (!minderOn) return;
+  const minderStyle = Config.get("hour_minder");
 
-  // Safety check: If the alarm is already ringing, don't play the chime to avoid messy audio!
+  // If the setting is "0" (Off), stop right here.
+  if (minderStyle === "0") return;
+
+  // Safety check: If the alarm is already ringing, don't play the chime
   if (alarmIsRinging) return;
 
   // Trigger exactly at Minute 0, Second 0
@@ -443,9 +498,25 @@ function setupSettingsPanel() {
     setTimeout(beep, 150);
   });
 
-  // Hourly Chime Toggle
-  minderToggle.addEventListener('change', (e) => {
-    Config.set("hour_minder", e.target.checked ? "1" : "0");
+  // // Hourly Chime Toggle
+  // minderToggle.addEventListener('change', (e) => {
+  //   Config.set("hour_minder", e.target.checked ? "1" : "0");
+  // });
+
+  // Hourly Chime Style
+  const minderSelect = document.getElementById('hour-minder');
+  minderSelect.value = Config.get("hour_minder"); // Load from memory
+
+  minderSelect.addEventListener('change', (e) => {
+    Config.set("hour_minder", e.target.value);
+
+    // TEST THE VOICE IMMEDIATELY WHEN SELECTED!
+    if (e.target.value === "2" && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const testSpeech = new SpeechSynthesisUtterance("Voice chime activated.");
+      testSpeech.rate = 0.9;
+      window.speechSynthesis.speak(testSpeech);
+    }
   });
 
 }
